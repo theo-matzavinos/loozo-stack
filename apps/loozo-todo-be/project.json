@@ -1,0 +1,80 @@
+{
+  "name": "loozo-todo-be",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/loozo-todo-be/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/loozo-todo-be",
+        "main": "apps/loozo-todo-be/src/main.ts",
+        "tsConfig": "apps/loozo-todo-be/tsconfig.app.json",
+        "assets": [
+          "apps/loozo-todo-be/src/assets"
+        ],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/loozo-todo-be/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "loozo-todo-be:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "loozo-todo-be:build:development"
+        },
+        "production": {
+          "buildTarget": "loozo-todo-be:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "apps/loozo-todo-be/**/*.ts"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "apps/loozo-todo-be/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "migrate-db": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma migrate"
+      }
+    }
+  },
+  "tags": []
+}
