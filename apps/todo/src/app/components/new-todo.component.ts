@@ -7,6 +7,7 @@ import { TRPC_SERVICE } from '../trpc.service';
 import { inferRouterInputs } from '@trpc/server';
 import { AppRouter } from '../../server';
 import { ButtonDirective } from '@loozo-stack/shared/button';
+import { DIALOG_COMPONENT_PARTS } from '@loozo-stack/shared/dialog';
 import { DialogRef } from '@angular/cdk/dialog';
 
 type AddToDoInput = inferRouterInputs<AppRouter>['addTodo'];
@@ -14,26 +15,35 @@ type AddToDoInput = inferRouterInputs<AppRouter>['addTodo'];
 @Component({
   selector: 'loozo-stack-new-todo',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonDirective],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonDirective,
+    DIALOG_COMPONENT_PARTS,
+  ],
   template: `
-    <section class="flex flex-col gap-y-4 overflow-hidden rounded bg-white p-4">
-      <h3 class="text-lg font-bold">New ToDo</h3>
+    <loozo-stack-dialog>
+      <ng-container *loozoStackDialogHeader>New ToDo</ng-container>
       <form
+        *loozoStackDialogBody
+        id="newToDoForm"
         class="flex flex-grow flex-col gap-y-4"
         [formGroup]="newToDoForm"
         (ngSubmit)="onSubmit()"
       >
         <label>
           <div class="w-32">Title:</div>
-          <input type="text" formControlName="title" />
+          <input type="text" class="w-full" formControlName="title" />
         </label>
         <label>
           <div class="w-32">Description:</div>
           <textarea class="w-full" formControlName="description"></textarea>
         </label>
-        <button class="ml-auto">Add</button>
       </form>
-    </section>
+      <ng-container *loozoStackDialogFooter>
+        <button form="newToDoForm">Add</button>
+      </ng-container>
+    </loozo-stack-dialog>
   `,
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,

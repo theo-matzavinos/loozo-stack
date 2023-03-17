@@ -1,0 +1,42 @@
+{
+  "name": "shared-dialog",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/shared/dialog/src",
+  "prefix": "consalio",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/angular:ng-packagr-lite",
+      "outputs": [
+        "{workspaceRoot}/dist/{projectRoot}"
+      ],
+      "options": {
+        "project": "libs/shared/dialog/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/shared/dialog/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "libs/shared/dialog/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "libs/shared/dialog/**/*.ts",
+          "libs/shared/dialog/**/*.html"
+        ]
+      }
+    }
+  },
+  "tags": [
+    "type:shared"
+  ]
+}

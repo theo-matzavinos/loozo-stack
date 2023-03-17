@@ -3,8 +3,8 @@ import { QueryClientService, UseMutation, UseQuery } from '@ngneat/query';
 import { from } from 'rxjs';
 import { LetModule } from '@rx-angular/template/let';
 import { ForModule } from '@rx-angular/template/for';
-import { Dialog, DialogModule } from '@angular/cdk/dialog';
 import { ButtonDirective } from '@loozo-stack/shared/button';
+import { DialogService, DialogModule } from '@loozo-stack/shared/dialog';
 
 import { TRPC_SERVICE } from '../../trpc.service';
 import { NgIf } from '@angular/common';
@@ -19,9 +19,9 @@ import { FormsModule } from '@angular/forms';
     ForModule,
     LetModule,
     NgIf,
-    DialogModule,
     ButtonDirective,
     FormsModule,
+    DialogModule,
   ],
   template: `
     <div
@@ -74,12 +74,12 @@ import { FormsModule } from '@angular/forms';
 export default class TodosListComponent {
   todosQuery = injectToDosQuery();
 
-  private dialog = inject(Dialog);
+  private dialogService = inject(DialogService);
   private deleteToDoMutation = injectDeleteToDoMutation();
   private toggleToDoMutation = injectToggleToDoMutation();
 
   onAdd() {
-    this.dialog.open(NewTodoComponent);
+    this.dialogService.open(NewTodoComponent, { panelClass: ['max-w-3xl'] });
   }
 
   onDelete(toDo: ToDo) {

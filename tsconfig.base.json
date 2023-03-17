@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@loozo-stack/shared/button": ["libs/shared/button/src/index.ts"]
+      "@loozo-stack/shared/button": ["libs/shared/button/src/index.ts"],
+      "@loozo-stack/shared/dialog": ["libs/shared/dialog/src/index.ts"]
     },
     "strict": true
   },
