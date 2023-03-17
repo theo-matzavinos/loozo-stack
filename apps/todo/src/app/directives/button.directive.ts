@@ -1,13 +1,19 @@
 import {
+  AfterViewInit,
   Directive,
   ElementRef,
-  HostBinding,
   inject,
   Input,
-  OnChanges,
-  SimpleChange,
-  SimpleChanges,
 } from '@angular/core';
+import { ComponentStore } from '@ngrx/component-store';
+import {
+  Observable,
+  pairwise,
+  pipe,
+  startWith,
+  tap,
+  UnaryFunction,
+} from 'rxjs';
 
 export const BUTTON_SIZE = {
   ICON: 'icon',
@@ -26,18 +32,23 @@ const SIZE_CLASSES = {
 };
 
 export const BUTTON_VARIANT = {
-  BASIC: 'basic',
+  FLAT: 'flat',
   RAISED: 'raised',
   STROKED: 'stroked',
-  FLAT: 'flat',
-};
+  LINK: 'link',
+} as const;
 
 export type ButtonVariant = EnumType<typeof BUTTON_VARIANT>;
 
 const VARIANT_CLASSES = {
-  [BUTTON_VARIANT.BASIC]: ['bg-transparent', 'border-0'],
+  [BUTTON_VARIANT.LINK]: ['bg-transparent', 'border-0', 'underline'],
   [BUTTON_VARIANT.RAISED]: ['shadow', 'border-0'],
-  [BUTTON_VARIANT.STROKED]: ['bg-white', 'border', 'border-gray-500'],
+  [BUTTON_VARIANT.STROKED]: [
+    'bg-transparent',
+    'bg-white',
+    'border',
+    'border-gray-500',
+  ],
   [BUTTON_VARIANT.FLAT]: ['border-0'],
 };
 
@@ -46,9 +57,47 @@ export const BUTTON_COLOR = {
   PRIMARY: 'primary',
   ACCENT: 'accent',
   WARNING: 'warning',
-};
+} as const;
 
 export type ButtonColor = EnumType<typeof BUTTON_COLOR>;
+
+const COLOR_CLASSES = {
+  [BUTTON_COLOR.ACCENT]: ['hover:bg-violet-200', 'ring-violet-700'],
+  [BUTTON_COLOR.BASIC]: ['hover:bg-gray-200', 'ring-gray-700'],
+  [BUTTON_COLOR.PRIMARY]: ['hover:bg-slate-200', 'ring-slate-700'],
+  [BUTTON_COLOR.WARNING]: ['hover:bg-amber-200', 'ring-amber-700'],
+};
+
+const COLOR_VARIANT_CLASSES = {
+  [BUTTON_COLOR.ACCENT]: {
+    [BUTTON_VARIANT.LINK]: ['text-violet-500'],
+    [BUTTON_VARIANT.FLAT]: ['bg-violet-500', 'text-white', 'hover:text-black'],
+    [BUTTON_VARIANT.RAISED]: [
+      'bg-violet-500',
+      'text-white',
+      'hover:text-black',
+    ],
+    [BUTTON_VARIANT.STROKED]: ['text-violet-500'],
+  },
+  [BUTTON_COLOR.BASIC]: {
+    [BUTTON_VARIANT.LINK]: [],
+    [BUTTON_VARIANT.FLAT]: ['bg-gray-100'],
+    [BUTTON_VARIANT.RAISED]: ['bg-gray-100'],
+    [BUTTON_VARIANT.STROKED]: [],
+  },
+  [BUTTON_COLOR.PRIMARY]: {
+    [BUTTON_VARIANT.LINK]: ['text-slate-500'],
+    [BUTTON_VARIANT.FLAT]: ['bg-slate-500', 'text-white', 'hover:text-black'],
+    [BUTTON_VARIANT.RAISED]: ['bg-slate-500', 'text-white', 'hover:text-black'],
+    [BUTTON_VARIANT.STROKED]: ['text-slate-500'],
+  },
+  [BUTTON_COLOR.WARNING]: {
+    [BUTTON_VARIANT.LINK]: ['text-amber-500'],
+    [BUTTON_VARIANT.FLAT]: ['bg-amber-500'],
+    [BUTTON_VARIANT.RAISED]: ['bg-amber-500'],
+    [BUTTON_VARIANT.STROKED]: ['text-amber-500'],
+  },
+};
 
 @Directive({
   // eslint-disable-next-line @angular-eslint/directive-selector
@@ -60,59 +109,125 @@ export type ButtonColor = EnumType<typeof BUTTON_COLOR>;
       'rounded-lg outline-none ring-inset transition duration-75 ease-linear focus:ring active:ring',
   },
 })
-export class ButtonDirective implements OnChanges {
+export class ButtonDirective implements AfterViewInit {
   @Input()
-  size: ButtonSize = BUTTON_SIZE.MEDIUM;
+  set size(size: ButtonSize) {
+    this.store.patchState({ size });
+  }
 
   @Input()
-  variant: ButtonVariant = BUTTON_VARIANT.BASIC;
+  set variant(variant: ButtonVariant) {
+    this.store.patchState({ variant });
+  }
 
   @Input()
-  color: ButtonColor = BUTTON_COLOR.BASIC;
+  set color(color: ButtonColor) {
+    this.store.patchState({ color });
+  }
 
   private elementRef: ElementRef<HTMLElement> = inject(ElementRef);
+  private store = new ComponentStore<
+    Pick<ButtonDirective, 'color' | 'size' | 'variant'>
+  >({
+    size: BUTTON_SIZE.MEDIUM,
+    color: BUTTON_COLOR.BASIC,
+    variant: BUTTON_VARIANT.FLAT,
+  });
+  private sizeEffect = createButtonPropEffect<ButtonSize>({
+    store: this.store,
+    classesRecord: SIZE_CLASSES,
+    elementRef: this.elementRef,
+  });
+  private variantEffect = createButtonPropEffect<ButtonVariant>({
+    store: this.store,
+    classesRecord: VARIANT_CLASSES,
+    elementRef: this.elementRef,
+  });
+  private colorEffect = createButtonPropEffect<ButtonColor>({
+    store: this.store,
+    classesRecord: COLOR_CLASSES,
+    elementRef: this.elementRef,
+  });
+  private variantAndColorEffect = this.store.effect<{
+    variant: ButtonVariant;
+    color: ButtonColor;
+  }>(
+    pipe(
+      pairwiseWithUndefinedInitialValue(),
+      tap(([previous, next]) => {
+        if (previous) {
+          const previousClasses =
+            COLOR_VARIANT_CLASSES[previous.color][previous.variant];
 
-  ngOnChanges(changes: SimpleChanges) {
-    if ('size' in changes) {
-      this.onSizeChange(changes['size']);
-    }
+          for (const previousClass of previousClasses) {
+            this.elementRef.nativeElement.classList.remove(previousClass);
+          }
+        }
 
-    if ('variant' in changes || 'color' in changes) {
-      this.onVariantOrColorChange(changes);
-    }
+        const nextClasses = COLOR_VARIANT_CLASSES[next.color][next.variant];
+
+        for (const nextClass of nextClasses) {
+          this.elementRef.nativeElement.classList.add(nextClass);
+        }
+      }),
+    ),
+  );
+  private size$ = this.store.select((state) => state.size, { debounce: true });
+  private variant$ = this.store.select((state) => state.variant, {
+    debounce: true,
+  });
+  private color$ = this.store.select((state) => state.color, {
+    debounce: true,
+  });
+  private variantAndColor$ = this.store.select(
+    { color: this.color$, variant: this.variant$ },
+    { debounce: true },
+  );
+
+  ngAfterViewInit() {
+    this.sizeEffect(this.size$);
+    this.variantEffect(this.variant$);
+    this.colorEffect(this.color$);
+    this.variantAndColorEffect(this.variantAndColor$);
   }
+}
 
-  private onSizeChange(change: SimpleChange) {
-    if (change.previousValue) {
-      const previousSizeClasses =
-        SIZE_CLASSES[change.previousValue as ButtonSize];
+function pairwiseWithUndefinedInitialValue<T>() {
+  return pipe(startWith(undefined), pairwise()) as UnaryFunction<
+    Observable<T>,
+    Observable<[T | undefined, T]>
+  >;
+}
 
-      for (const sizeClass of previousSizeClasses) {
-        this.elementRef.nativeElement.classList.remove(sizeClass);
-      }
-    }
+function createButtonPropEffect<
+  T extends ButtonSize | ButtonVariant | ButtonColor,
+>({
+  store,
+  classesRecord,
+  elementRef,
+}: {
+  store: ComponentStore<Pick<ButtonDirective, 'color' | 'size' | 'variant'>>;
+  classesRecord: Record<T, string[]>;
+  elementRef: ElementRef<HTMLElement>;
+}) {
+  return store.effect<T>(
+    pipe(
+      pairwiseWithUndefinedInitialValue(),
+      tap(([previous, next]) => {
+        if (previous) {
+          const previousClasses = classesRecord[previous];
 
-    const currentSizeClasses = SIZE_CLASSES[change.currentValue as ButtonSize];
+          for (const previousClass of previousClasses) {
+            elementRef.nativeElement.classList.remove(previousClass);
+          }
+        }
 
-    for (const sizeClass of currentSizeClasses) {
-      this.elementRef.nativeElement.classList.add(sizeClass);
-    }
-  }
+        const nextClasses = classesRecord[next];
 
-  private onVariantOrColorChange(changes: SimpleChanges) {
-    if ('variant' in changes) {
-      const previousVariantClasses =
-        VARIANT_CLASSES[changes['variant'].previousValue as ButtonVariant];
-
-      for (const variantClass of previousVariantClasses) {
-        this.elementRef.nativeElement.classList.remove(variantClass);
-      }
-    }
-
-    const currentVariantClasses = VARIANT_CLASSES[this.variant];
-
-    for (const variantClass of currentVariantClasses) {
-      this.elementRef.nativeElement.classList.add(variantClass);
-    }
-  }
+        for (const nextClass of nextClasses) {
+          elementRef.nativeElement.classList.add(nextClass);
+        }
+      }),
+    ),
+  );
 }

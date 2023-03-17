@@ -16,7 +16,13 @@ import { ToDo } from '@prisma/client';
   standalone: true,
   imports: [ForModule, LetModule, NgIf, DialogModule, ButtonDirective],
   template: `
-    <button type="button" [size]="'md'" [variant]="'basic'" (click)="onAdd()">
+    <button
+      type="button"
+      [size]="'md'"
+      [variant]="'raised'"
+      [color]="'primary'"
+      (click)="onAdd()"
+    >
       Add
     </button>
     <ng-container *rxLet="todosQuery.result$ as todosQueryResult">
