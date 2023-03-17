@@ -16,22 +16,27 @@ import { ToDo } from '@prisma/client';
   standalone: true,
   imports: [ForModule, LetModule, NgIf, DialogModule, ButtonDirective],
   template: `
-    <button
-      type="button"
-      [size]="'md'"
-      [variant]="'raised'"
-      [color]="'primary'"
-      (click)="onAdd()"
-    >
+    <button type="button" variant="raised" color="primary" (click)="onAdd()">
       Add
     </button>
     <ng-container *rxLet="todosQuery.result$ as todosQueryResult">
-      <ng-container *ngIf="todosQueryResult.isSuccess">
-        <div *rxFor="let todo of todosQueryResult.data">
+      <div *ngIf="todosQueryResult.isSuccess" class="flex flex-col gap-y-2">
+        <div
+          *rxFor="let todo of todosQueryResult.data"
+          class="flex items-center gap-x-4"
+        >
           {{ todo.title }}
-          <button type="button" (click)="onDelete(todo)">x</button>
+          <button
+            type="button"
+            class="ml-auto"
+            size="icon"
+            variant="stroked"
+            (click)="onDelete(todo)"
+          >
+            <div class="flex h-4 w-4 items-center justify-center">x</div>
+          </button>
         </div>
-      </ng-container>
+      </div>
     </ng-container>
   `,
   styles: [],

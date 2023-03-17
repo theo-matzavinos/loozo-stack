@@ -25,7 +25,13 @@ export const BUTTON_SIZE = {
 export type ButtonSize = EnumType<typeof BUTTON_SIZE>;
 
 const SIZE_CLASSES = {
-  [BUTTON_SIZE.ICON]: ['flex', 'items-center', 'justify-center', 'p-2'],
+  [BUTTON_SIZE.ICON]: [
+    'flex',
+    'items-center',
+    'justify-center',
+    'p-1',
+    'rounded-full',
+  ],
   [BUTTON_SIZE.SMALL]: ['py-0', 'px-2'],
   [BUTTON_SIZE.MEDIUM]: ['py-1', 'px-4'],
   [BUTTON_SIZE.LARGE]: ['py-2', 'px-6'],
