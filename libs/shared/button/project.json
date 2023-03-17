@@ -1,0 +1,42 @@
+{
+  "name": "shared-button",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/shared/button/src",
+  "prefix": "consalio",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/angular:ng-packagr-lite",
+      "outputs": [
+        "{workspaceRoot}/dist/{projectRoot}"
+      ],
+      "options": {
+        "project": "libs/shared/button/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/shared/button/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "libs/shared/button/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "libs/shared/button/**/*.ts",
+          "libs/shared/button/**/*.html"
+        ]
+      }
+    }
+  },
+  "tags": [
+    "type:shared"
+  ]
+}

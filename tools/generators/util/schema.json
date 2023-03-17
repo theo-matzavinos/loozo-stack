@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "util",
+  "type": "object",
+  "cli": "nx",
+  "properties": {
+    "domain": {
+      "type": "string",
+      "description": "Domain name",
+      "x-prompt": "To which domain does this utility library belong?",
+      "enum": [
+        "account",
+        "auth",
+        "contracts",
+        "custom-reports",
+        "delivery-note",
+        "import",
+        "my-advisors",
+        "my-entities",
+        "navigation",
+        "organization",
+        "projects",
+        "reporting",
+        "requests",
+        "segments",
+        "seniority-levels",
+        "transactions",
+        "users",
+        "dashboard"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "description": "Utility library's name",
+      "x-prompt": "What name is the utility library's name?"
+    }
+  },
+  "required": ["name", "domain"]
+}

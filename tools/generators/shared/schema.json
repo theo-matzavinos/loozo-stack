@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "shared",
+  "type": "object",
+  "cli": "nx",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Shared library's name",
+      "x-prompt": "What name is the library's name?"
+    },
+    "assets": {
+      "type": "boolean",
+      "description": "Add library's assets to app?"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

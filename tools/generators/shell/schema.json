@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "shell",
+  "type": "object",
+  "cli": "nx",
+  "properties": {
+    "domain": {
+      "type": "string",
+      "description": "Domain name",
+      "x-prompt": "To which domain does this shell library belong?",
+      "enum": [
+        "account",
+        "auth",
+        "contracts",
+        "custom-reports",
+        "delivery-note",
+        "import",
+        "my-advisors",
+        "my-entities",
+        "navigation",
+        "organization",
+        "projects",
+        "reporting",
+        "requests",
+        "segments",
+        "seniority-levels",
+        "transactions",
+        "users",
+        "dashboard"
+      ]
+    },
+    "routing": {
+      "type": "boolean"
+    },
+    "assets": {
+      "type": "boolean",
+      "description": "Add library's assets to app?"
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["advisor", "corporate"]
+    },
+    "generateComponent": {
+      "type": "boolean"
+    }
+  },
+  "required": ["domain", "scope"]
+}

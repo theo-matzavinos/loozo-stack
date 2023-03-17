@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "add-lib-assets",
+  "type": "object",
+  "cli": "nx",
+  "properties": {
+    "library": {
+      "type": "string",
+      "description": "The name of the library.",
+      "$default": {
+        "$source": "projectName"
+      }
+    },
+    "path": {
+      "type": "string",
+      "description": "The path to serve the assets from (eg. subdomain/features/feature will serve from /assets/subdomain/features/feature)."
+    }
+  },
+  "required": ["library", "path"]
+}

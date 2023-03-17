@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "feature",
+  "type": "object",
+  "cli": "nx",
+  "properties": {
+    "domain": {
+      "type": "string",
+      "description": "Domain name",
+      "x-prompt": "To which domain does this feature belong?",
+      "enum": [
+        "account",
+        "auth",
+        "contracts",
+        "custom-reports",
+        "delivery-note",
+        "import",
+        "my-advisors",
+        "my-entities",
+        "navigation",
+        "organization",
+        "projects",
+        "reporting",
+        "requests",
+        "segments",
+        "seniority-levels",
+        "transactions",
+        "users",
+        "dashboard"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "description": "Feature name",
+      "x-prompt": "What name is the feature's name?"
+    },
+    "routing": {
+      "type": "boolean",
+      "description": "Add routing configuration?"
+    },
+    "assets": {
+      "type": "boolean",
+      "description": "Add library's assets to app?"
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["advisor", "corporate"]
+    }
+  },
+  "required": ["name", "domain", "scope"]
+}

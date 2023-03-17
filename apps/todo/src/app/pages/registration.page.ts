@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { TRPC_SERVICE } from '../trpc.service';
-import { ButtonDirective } from '../directives/button.directive';
+import { ButtonDirective } from '@loozo-stack/shared/button';
 
 @Component({
   selector: 'loozo-stack-registration',

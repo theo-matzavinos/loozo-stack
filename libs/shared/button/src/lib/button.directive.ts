@@ -14,6 +14,7 @@ import {
   tap,
   UnaryFunction,
 } from 'rxjs';
+import { ValueOf } from 'type-fest';
 
 export const BUTTON_SIZE = {
   ICON: 'icon',
@@ -22,7 +23,7 @@ export const BUTTON_SIZE = {
   LARGE: 'lg',
 } as const;
 
-export type ButtonSize = EnumType<typeof BUTTON_SIZE>;
+export type ButtonSize = ValueOf<typeof BUTTON_SIZE>;
 
 const SIZE_CLASSES = {
   [BUTTON_SIZE.ICON]: [
@@ -32,9 +33,9 @@ const SIZE_CLASSES = {
     'p-1',
     'rounded-full',
   ],
-  [BUTTON_SIZE.SMALL]: ['py-0', 'px-2'],
-  [BUTTON_SIZE.MEDIUM]: ['py-1', 'px-4'],
-  [BUTTON_SIZE.LARGE]: ['py-2', 'px-6'],
+  [BUTTON_SIZE.SMALL]: ['py-0', 'px-2', 'rounded-lg'],
+  [BUTTON_SIZE.MEDIUM]: ['py-1', 'px-4', 'rounded-lg'],
+  [BUTTON_SIZE.LARGE]: ['py-2', 'px-6', 'rounded-lg'],
 };
 
 export const BUTTON_VARIANT = {
@@ -44,7 +45,7 @@ export const BUTTON_VARIANT = {
   LINK: 'link',
 } as const;
 
-export type ButtonVariant = EnumType<typeof BUTTON_VARIANT>;
+export type ButtonVariant = ValueOf<typeof BUTTON_VARIANT>;
 
 const VARIANT_CLASSES = {
   [BUTTON_VARIANT.LINK]: ['bg-transparent', 'border-0', 'underline'],
@@ -65,7 +66,7 @@ export const BUTTON_COLOR = {
   WARNING: 'warning',
 } as const;
 
-export type ButtonColor = EnumType<typeof BUTTON_COLOR>;
+export type ButtonColor = ValueOf<typeof BUTTON_COLOR>;
 
 const COLOR_CLASSES = {
   [BUTTON_COLOR.ACCENT]: ['hover:bg-violet-200', 'ring-violet-700'],
@@ -106,13 +107,11 @@ const COLOR_VARIANT_CLASSES = {
 };
 
 @Directive({
-  // eslint-disable-next-line @angular-eslint/directive-selector
   selector: 'button',
   standalone: true,
-  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
   host: {
     class:
-      'rounded-lg outline-none ring-inset transition duration-75 ease-linear focus:ring active:ring',
+      'outline-none ring-inset transition duration-75 ease-linear focus:ring active:ring',
   },
 })
 export class ButtonDirective implements AfterViewInit {

@@ -15,9 +15,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "be": ["./apps/loozo-todo-be/src/index.ts"]
+      "@loozo-stack/shared/button": ["libs/shared/button/src/index.ts"]
     },
     "strict": true
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": ["node_modules", "tmp"],
+  "include": ["types.d.ts"]
 }

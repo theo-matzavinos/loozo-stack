@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "library",
+  "type": "object",
+  "cli": "nx",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Library name",
+      "x-prompt": "What name is the library's name?"
+    },
+    "directory": {
+      "type": "string",
+      "description": "Parent directory"
+    },
+    "tags": {
+      "type": "string",
+      "description": "Library tags (used to restrict imports)."
+    },
+    "simpleModuleName": {
+      "description": "Keep the module name simple.",
+      "type": "boolean",
+      "default": false
+    },
+    "routing": {
+      "type": "boolean",
+      "default": false,
+      "description": "Add router configuration."
+    },
+    "generateComponent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Generate a component?"
+    },
+    "exportComponent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Add generated component to NgModule's exports?"
+    }
+  },
+  "required": ["name", "directory", "tags"]
+}

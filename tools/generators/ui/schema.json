@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "ui",
+  "type": "object",
+  "cli": "nx",
+  "properties": {
+    "domain": {
+      "type": "string",
+      "description": "Domain name",
+      "x-prompt": "To which domain does this ui library belong?",
+      "enum": [
+        "account",
+        "auth",
+        "contracts",
+        "custom-reports",
+        "delivery-note",
+        "import",
+        "my-advisors",
+        "my-entities",
+        "navigation",
+        "organization",
+        "projects",
+        "reporting",
+        "requests",
+        "segments",
+        "seniority-levels",
+        "transactions",
+        "users",
+        "dashboard"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "description": "UI library's name",
+      "x-prompt": "What name is the UI library's name?"
+    },
+    "assets": {
+      "type": "boolean",
+      "description": "Add library's assets to app?"
+    }
+  },
+  "required": ["name", "domain"]
+}

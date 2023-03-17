@@ -33,5 +33,9 @@ export const routeMeta: RouteMeta = {
       <router-outlet />
     </div>
   `,
+  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
+  host: {
+    class: 'flex flex-col flex-grow overflow-hidden',
+  },
 })
 export default class ToDosComponent {}

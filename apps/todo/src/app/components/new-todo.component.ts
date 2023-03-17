@@ -6,7 +6,7 @@ import { from } from 'rxjs';
 import { TRPC_SERVICE } from '../trpc.service';
 import { inferRouterInputs } from '@trpc/server';
 import { AppRouter } from '../../server';
-import { ButtonDirective } from '../directives/button.directive';
+import { ButtonDirective } from '@loozo-stack/shared/button';
 import { DialogRef } from '@angular/cdk/dialog';
 
 type AddToDoInput = inferRouterInputs<AppRouter>['addTodo'];

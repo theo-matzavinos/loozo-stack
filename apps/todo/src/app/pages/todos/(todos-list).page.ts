@@ -4,27 +4,43 @@ import { from } from 'rxjs';
 import { LetModule } from '@rx-angular/template/let';
 import { ForModule } from '@rx-angular/template/for';
 import { Dialog, DialogModule } from '@angular/cdk/dialog';
+import { ButtonDirective } from '@loozo-stack/shared/button';
 
 import { TRPC_SERVICE } from '../../trpc.service';
 import { NgIf } from '@angular/common';
 import { NewTodoComponent } from '../../components/new-todo.component';
-import { ButtonDirective } from '../../directives/button.directive';
 import { ToDo } from '@prisma/client';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'loozo-stack-todos-list',
   standalone: true,
-  imports: [ForModule, LetModule, NgIf, DialogModule, ButtonDirective],
+  imports: [
+    ForModule,
+    LetModule,
+    NgIf,
+    DialogModule,
+    ButtonDirective,
+    FormsModule,
+  ],
   template: `
-    <button type="button" variant="raised" color="primary" (click)="onAdd()">
-      Add
-    </button>
-    <ng-container *rxLet="todosQuery.result$ as todosQueryResult">
-      <div *ngIf="todosQueryResult.isSuccess" class="flex flex-col gap-y-2">
+    <div
+      *rxLet="todosQuery.result$ as todosQueryResult"
+      class="flex flex-grow flex-col overflow-hidden"
+    >
+      <div
+        *ngIf="todosQueryResult.isSuccess"
+        class="flex flex-col gap-y-2 overflow-y-auto"
+      >
         <div
           *rxFor="let todo of todosQueryResult.data"
           class="flex items-center gap-x-4"
         >
+          <input
+            type="checkbox"
+            [ngModel]="todo.isDone"
+            (ngModelChange)="onToggleToDoIsDone(todo)"
+          />
           {{ todo.title }}
           <button
             type="button"
@@ -37,16 +53,30 @@ import { ToDo } from '@prisma/client';
           </button>
         </div>
       </div>
-    </ng-container>
+      <button
+        type="button"
+        class="mt-4 ml-auto"
+        variant="raised"
+        color="primary"
+        (click)="onAdd()"
+      >
+        Add
+      </button>
+    </div>
   `,
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
+  host: {
+    class: 'flex flex-col flex-grow self-start overflow-hidden',
+  },
 })
 export default class TodosListComponent {
   todosQuery = injectToDosQuery();
 
   private dialog = inject(Dialog);
   private deleteToDoMutation = injectDeleteToDoMutation();
+  private toggleToDoMutation = injectToggleToDoMutation();
 
   onAdd() {
     this.dialog.open(NewTodoComponent);
@@ -54,6 +84,10 @@ export default class TodosListComponent {
 
   onDelete(toDo: ToDo) {
     this.deleteToDoMutation.mutate(toDo.id);
+  }
+
+  onToggleToDoIsDone(toDo: ToDo) {
+    this.toggleToDoMutation.mutate(toDo.id);
   }
 }
 
@@ -82,6 +116,32 @@ function injectDeleteToDoMutation() {
         queryClientService.setQueryData(
           ['todos'],
           currentToDos.filter((todo) => todo.id !== toDoId),
+        );
+      },
+    },
+  );
+}
+
+function injectToggleToDoMutation() {
+  const useMutation = inject(UseMutation);
+  const queryClientService = inject(QueryClientService);
+  const trpcService = inject(TRPC_SERVICE);
+
+  return useMutation(
+    (toDoId: string) => {
+      return from(trpcService.toggleTodo.mutate(toDoId));
+    },
+    {
+      onSuccess: (updatedToDo) => {
+        // queryClientService.invalidateQueries(['todos']);
+        const currentToDos = (queryClientService.getQueryData(['todos']) ??
+          []) as ToDo[];
+
+        queryClientService.setQueryData(
+          ['todos'],
+          currentToDos.map((todo) =>
+            todo.id !== updatedToDo.id ? todo : updatedToDo,
+          ),
         );
       },
     },
