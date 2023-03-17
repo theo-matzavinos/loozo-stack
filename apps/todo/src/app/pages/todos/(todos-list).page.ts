@@ -1,33 +1,48 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { QueryClientService, UseMutation, UseQuery } from '@ngneat/query';
-import { LetModule } from '@ngrx/component';
 import { from } from 'rxjs';
+import { LetModule } from '@rx-angular/template/let';
+import { ForModule } from '@rx-angular/template/for';
+import { Dialog, DialogModule } from '@angular/cdk/dialog';
 
 import { TRPC_SERVICE } from '../../trpc.service';
+import { NgIf } from '@angular/common';
+import { NewTodoComponent } from '../../components/new-todo.component';
+import { ButtonDirective } from '../../directives/button.directive';
+import { ToDo } from '@prisma/client';
 
 @Component({
   selector: 'loozo-stack-todos-list',
   standalone: true,
-  imports: [CommonModule, LetModule],
-  template: `<button type="button" (click)="onAdd()">Add</button>
-    <ng-container *ngrxLet="todosQuery.result$ as todosQueryResult">
+  imports: [ForModule, LetModule, NgIf, DialogModule, ButtonDirective],
+  template: `
+    <button type="button" [size]="'md'" [variant]="'basic'" (click)="onAdd()">
+      Add
+    </button>
+    <ng-container *rxLet="todosQuery.result$ as todosQueryResult">
       <ng-container *ngIf="todosQueryResult.isSuccess">
-        <div *ngFor="let todo of todosQueryResult.data">
+        <div *rxFor="let todo of todosQueryResult.data">
           {{ todo.title }}
+          <button type="button" (click)="onDelete(todo)">x</button>
         </div>
       </ng-container>
-    </ng-container>`,
+    </ng-container>
+  `,
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class TodosListComponent {
   todosQuery = injectToDosQuery();
 
-  private readonly addToDoMutation = injectAddToDosMutation();
+  private dialog = inject(Dialog);
+  private deleteToDoMutation = injectDeleteToDoMutation();
 
   onAdd() {
-    this.addToDoMutation.mutate();
+    this.dialog.open(NewTodoComponent);
+  }
+
+  onDelete(toDo: ToDo) {
+    this.deleteToDoMutation.mutate(toDo.id);
   }
 }
 
@@ -38,27 +53,25 @@ function injectToDosQuery() {
   return useQuery(['todos'], () => from(trpcService.getTodos.query()));
 }
 
-function injectAddToDosMutation() {
+function injectDeleteToDoMutation() {
   const useMutation = inject(UseMutation);
   const queryClientService = inject(QueryClientService);
   const trpcService = inject(TRPC_SERVICE);
 
   return useMutation(
-    () => {
-      return from(
-        trpcService.addTodo.mutate({
-          title: `test ${Date.now()}`,
-          description: 'huh',
-        }),
-      );
+    (toDoId: string) => {
+      return from(trpcService.deleteTodo.mutate(toDoId));
     },
     {
-      onSuccess: (data) => {
+      onSuccess: (_, toDoId) => {
         // queryClientService.invalidateQueries(['todos']);
         const currentToDos = (queryClientService.getQueryData(['todos']) ??
-          []) as string[];
+          []) as ToDo[];
 
-        queryClientService.setQueryData(['todos'], [...currentToDos, data]);
+        queryClientService.setQueryData(
+          ['todos'],
+          currentToDos.filter((todo) => todo.id !== toDoId),
+        );
       },
     },
   );

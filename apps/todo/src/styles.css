@@ -1,3 +1,7 @@
+@import '../../../node_modules/@angular/cdk/overlay-prebuilt';
+
+@config "../tailwind.config.cjs";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

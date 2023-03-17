@@ -1,5 +1,6 @@
 const { createGlobPatternsForDependencies } = require('@nrwl/angular/tailwind');
 const { join } = require('path');
+const inputPlugin = require('./src/tailwind/input.cjs');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -10,5 +11,5 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [inputPlugin],
 };

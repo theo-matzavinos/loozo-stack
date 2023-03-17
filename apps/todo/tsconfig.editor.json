@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/tailwind/input.cjs"],
   "compilerOptions": {
     "types": ["jest", "node"]
   }

@@ -60,6 +60,7 @@ const appRouter = t.router({
     .mutation(async ({ input }) => {
       return await prisma.user.create({ data: input });
     }),
+  getAccount: protectedProcedure.query(({ ctx }) => ctx.user),
   getTodos: protectedProcedure.query(({ ctx }) =>
     prisma.toDo.findMany({ where: { userId: ctx.user?.id } }),
   ),
@@ -67,7 +68,7 @@ const appRouter = t.router({
     .input(
       z.object({
         title: z.string(),
-        description: z.string(),
+        description: z.string().optional(),
         isDone: z.boolean().optional(),
       }),
     )
@@ -76,6 +77,22 @@ const appRouter = t.router({
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         data: { ...input, userId: ctx.user!.id },
       });
+    }),
+  deleteTodo: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const { count } = await prisma.toDo.deleteMany({
+        where: { id: input, userId: ctx.user?.id },
+      });
+
+      if (!count) {
+        throw new TRPCError({
+          message: 'Maybe it was deleted already?',
+          code: 'NOT_FOUND',
+        });
+      }
+
+      return;
     }),
   toggleTodo: protectedProcedure
     .input(z.string())

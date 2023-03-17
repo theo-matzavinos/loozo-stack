@@ -27,9 +27,11 @@ export const routeMeta: RouteMeta = {
   standalone: true,
   imports: [RouterOutlet],
   template: `
-    <h2>ToDos</h2>
+    <h2 class="text-xl font-bold">ToDos</h2>
 
-    <router-outlet />
+    <div class="mt-4 flex flex-grow flex-col overflow-hidden">
+      <router-outlet />
+    </div>
   `,
 })
 export default class ToDosComponent {}
