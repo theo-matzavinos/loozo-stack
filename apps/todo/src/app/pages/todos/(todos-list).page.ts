@@ -23,6 +23,12 @@ import { FormsModule } from '@angular/forms';
     FormsModule,
     DialogModule,
   ],
+  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
+  host: {
+    class: 'flex flex-col flex-grow self-start overflow-hidden',
+  },
   template: `
     <div
       *rxLet="todosQuery.result$ as todosQueryResult"
@@ -64,12 +70,6 @@ import { FormsModule } from '@angular/forms';
       </button>
     </div>
   `,
-  styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
-  host: {
-    class: 'flex flex-col flex-grow self-start overflow-hidden',
-  },
 })
 export default class TodosListComponent {
   todosQuery = injectToDosQuery();

@@ -20,6 +20,14 @@ export type DialogKind = 'default' | 'error' | 'warning' | 'success' | 'info';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [NgClass, NgIf, NgTemplateOutlet],
+  styles: [
+    `
+      :host-context(.collapsed) main,
+      :host-context(.collapsed) footer {
+        display: none;
+      }
+    `,
+  ],
   host: {
     class: 'flex flex-col rounded-lg shadow bg-white overflow-hidden',
   },
@@ -50,14 +58,6 @@ export type DialogKind = 'default' | 'error' | 'warning' | 'success' | 'info';
       <ng-container *ngTemplateOutlet="footerTemplateRef"></ng-container>
     </footer>
   `,
-  styles: [
-    `
-      :host-context(.collapsed) main,
-      :host-context(.collapsed) footer {
-        display: none;
-      }
-    `,
-  ],
 })
 export class DialogComponent<T = unknown> {
   @ContentChild(DialogHeaderDirective, { static: true, read: TemplateRef })

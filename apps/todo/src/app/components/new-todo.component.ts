@@ -21,6 +21,7 @@ type AddToDoInput = inferRouterInputs<AppRouter>['addTodo'];
     ButtonDirective,
     DIALOG_COMPONENT_PARTS,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <loozo-stack-dialog>
       <ng-container *loozoStackDialogHeader>New ToDo</ng-container>
@@ -45,8 +46,6 @@ type AddToDoInput = inferRouterInputs<AppRouter>['addTodo'];
       </ng-container>
     </loozo-stack-dialog>
   `,
-  styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewTodoComponent {
   newToDoForm = inject(FormBuilder).group({

@@ -4,16 +4,11 @@ import {
   ElementRef,
   inject,
   Input,
+  signal,
+  effect,
+  Signal,
+  computed,
 } from '@angular/core';
-import { ComponentStore } from '@ngrx/component-store';
-import {
-  Observable,
-  pairwise,
-  pipe,
-  startWith,
-  tap,
-  UnaryFunction,
-} from 'rxjs';
 import { ValueOf } from 'type-fest';
 
 export const BUTTON_SIZE = {
@@ -117,122 +112,77 @@ const COLOR_VARIANT_CLASSES = {
 export class ButtonDirective implements AfterViewInit {
   @Input()
   set size(size: ButtonSize) {
-    this.store.patchState({ size });
+    this.size$.set(size);
   }
 
   @Input()
   set variant(variant: ButtonVariant) {
-    this.store.patchState({ variant });
+    this.variant$.set(variant);
   }
 
   @Input()
   set color(color: ButtonColor) {
-    this.store.patchState({ color });
+    this.color$.set(color);
   }
 
   private elementRef: ElementRef<HTMLElement> = inject(ElementRef);
-  private store = new ComponentStore<
-    Pick<ButtonDirective, 'color' | 'size' | 'variant'>
-  >({
-    size: BUTTON_SIZE.MEDIUM,
-    color: BUTTON_COLOR.BASIC,
-    variant: BUTTON_VARIANT.FLAT,
-  });
-  private sizeEffect = createButtonPropEffect<ButtonSize>({
-    store: this.store,
-    classesRecord: SIZE_CLASSES,
-    elementRef: this.elementRef,
-  });
-  private variantEffect = createButtonPropEffect<ButtonVariant>({
-    store: this.store,
-    classesRecord: VARIANT_CLASSES,
-    elementRef: this.elementRef,
-  });
-  private colorEffect = createButtonPropEffect<ButtonColor>({
-    store: this.store,
-    classesRecord: COLOR_CLASSES,
-    elementRef: this.elementRef,
-  });
-  private variantAndColorEffect = this.store.effect<{
-    variant: ButtonVariant;
-    color: ButtonColor;
-  }>(
-    pipe(
-      pairwiseWithUndefinedInitialValue(),
-      tap(([previous, next]) => {
-        if (previous) {
-          const previousClasses =
-            COLOR_VARIANT_CLASSES[previous.color][previous.variant];
-
-          for (const previousClass of previousClasses) {
-            this.elementRef.nativeElement.classList.remove(previousClass);
-          }
-        }
-
-        const nextClasses = COLOR_VARIANT_CLASSES[next.color][next.variant];
-
-        for (const nextClass of nextClasses) {
-          this.elementRef.nativeElement.classList.add(nextClass);
-        }
-      }),
-    ),
-  );
-  private size$ = this.store.select((state) => state.size, { debounce: true });
-  private variant$ = this.store.select((state) => state.variant, {
-    debounce: true,
-  });
-  private color$ = this.store.select((state) => state.color, {
-    debounce: true,
-  });
-  private variantAndColor$ = this.store.select(
-    { color: this.color$, variant: this.variant$ },
-    { debounce: true },
-  );
+  private size$ = signal<ButtonSize>(BUTTON_SIZE.MEDIUM);
+  private variant$ = signal<ButtonVariant>(BUTTON_VARIANT.FLAT);
+  private color$ = signal<ButtonColor>(BUTTON_COLOR.BASIC);
 
   ngAfterViewInit() {
-    this.sizeEffect(this.size$);
-    this.variantEffect(this.variant$);
-    this.colorEffect(this.color$);
-    this.variantAndColorEffect(this.variantAndColor$);
+    createButtonPropEffect({
+      signal$: this.size$,
+      getClasses: (size) => SIZE_CLASSES[size],
+      elementRef: this.elementRef,
+    });
+    createButtonPropEffect({
+      signal$: this.variant$,
+      getClasses: (variant) => VARIANT_CLASSES[variant],
+      elementRef: this.elementRef,
+    });
+    createButtonPropEffect({
+      signal$: this.color$,
+      getClasses: (color) => COLOR_CLASSES[color],
+      elementRef: this.elementRef,
+    });
+    createButtonPropEffect({
+      signal$: computed(() => ({
+        variant: this.variant$(),
+        color: this.color$(),
+      })),
+      getClasses: ({ color, variant }) => COLOR_VARIANT_CLASSES[color][variant],
+      elementRef: this.elementRef,
+    });
   }
 }
 
-function pairwiseWithUndefinedInitialValue<T>() {
-  return pipe(startWith(undefined), pairwise()) as UnaryFunction<
-    Observable<T>,
-    Observable<[T | undefined, T]>
-  >;
-}
-
-function createButtonPropEffect<
-  T extends ButtonSize | ButtonVariant | ButtonColor,
->({
-  store,
-  classesRecord,
+function createButtonPropEffect<T>({
+  signal$,
+  getClasses,
   elementRef,
 }: {
-  store: ComponentStore<Pick<ButtonDirective, 'color' | 'size' | 'variant'>>;
-  classesRecord: Record<T, string[]>;
+  signal$: Signal<T>;
+  getClasses: (value: T) => string[];
   elementRef: ElementRef<HTMLElement>;
 }) {
-  return store.effect<T>(
-    pipe(
-      pairwiseWithUndefinedInitialValue(),
-      tap(([previous, next]) => {
-        if (previous) {
-          const previousClasses = classesRecord[previous];
+  let previousValue: T | undefined;
 
-          for (const previousClass of previousClasses) {
-            elementRef.nativeElement.classList.remove(previousClass);
-          }
-        }
+  effect(() => {
+    if (previousValue) {
+      const previousClasses = getClasses(previousValue);
 
-        const nextClasses = classesRecord[next];
+      for (const previousClass of previousClasses) {
+        elementRef.nativeElement.classList.remove(previousClass);
+      }
+    }
 
-        for (const nextClass of nextClasses) {
-          elementRef.nativeElement.classList.add(nextClass);
-        }
-      }),
-    ),
-  );
+    previousValue = signal$();
+
+    const nextClasses = getClasses(signal$());
+
+    for (const nextClass of nextClasses) {
+      elementRef.nativeElement.classList.add(nextClass);
+    }
+  });
 }

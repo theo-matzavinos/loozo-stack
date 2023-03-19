@@ -26,6 +26,10 @@ export const routeMeta: RouteMeta = {
   selector: 'loozo-stack-todos',
   standalone: true,
   imports: [RouterOutlet],
+  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
+  host: {
+    class: 'flex flex-col flex-grow overflow-hidden',
+  },
   template: `
     <h2 class="text-xl font-bold">ToDos</h2>
 
@@ -33,9 +37,5 @@ export const routeMeta: RouteMeta = {
       <router-outlet />
     </div>
   `,
-  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
-  host: {
-    class: 'flex flex-col flex-grow overflow-hidden',
-  },
 })
 export default class ToDosComponent {}

@@ -7,6 +7,7 @@ import { ACCOUNT_QUERY } from './account-query';
 @Component({
   standalone: true,
   selector: 'loozo-stack-root',
+  imports: [RouterOutlet, LetModule, NgIf],
   template: `
     <div class="flex h-screen w-screen flex-col overflow-hidden">
       <div class="flex h-12 items-center bg-slate-900 p-4 text-white">
@@ -33,8 +34,6 @@ import { ACCOUNT_QUERY } from './account-query';
       </div>
     </div>
   `,
-  styles: [],
-  imports: [RouterOutlet, LetModule, NgIf],
 })
 export class AppComponent {
   accountQuery = inject(ACCOUNT_QUERY);

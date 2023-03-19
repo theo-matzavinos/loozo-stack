@@ -9,6 +9,7 @@ import { ButtonDirective } from '@loozo-stack/shared/button';
   selector: 'loozo-stack-registration',
   standalone: true,
   imports: [CommonModule, FormsModule, ButtonDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <form class="flex flex-col gap-y-4" (ngSubmit)="onSubmit()">
       <label class="flex gap-x-2"
@@ -20,8 +21,6 @@ import { ButtonDirective } from '@loozo-stack/shared/button';
       <button class="mr-auto border border-black px-2">Register</button>
     </form>
   `,
-  styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class RegistrationComponent {
   email = '';
