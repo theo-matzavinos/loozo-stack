@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { TRPC_SERVICE } from '../trpc.service';
 import { ButtonDirective } from '@loozo-stack/shared/button';
+import { injectTrpcClient } from '../trpc-client';
 
 @Component({
   selector: 'loozo-stack-registration',
@@ -26,7 +26,7 @@ export default class RegistrationComponent {
   email = '';
   password = '';
 
-  private trpcService = inject(TRPC_SERVICE);
+  private trpcService = injectTrpcClient();
 
   async onSubmit() {
     await this.trpcService.register.mutate({

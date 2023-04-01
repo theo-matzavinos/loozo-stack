@@ -6,11 +6,11 @@ import { ForModule } from '@rx-angular/template/for';
 import { ButtonDirective } from '@loozo-stack/shared/button';
 import { DialogService, DialogModule } from '@loozo-stack/shared/dialog';
 
-import { TRPC_SERVICE } from '../../trpc.service';
 import { NgIf } from '@angular/common';
 import { NewTodoComponent } from '../../components/new-todo.component';
 import { ToDo } from '@prisma/client';
 import { FormsModule } from '@angular/forms';
+import { injectTrpcClient } from '../../trpc-client';
 
 @Component({
   selector: 'loozo-stack-todos-list',
@@ -92,7 +92,7 @@ export default class TodosListComponent {
 }
 
 function injectToDosQuery() {
-  const trpcService = inject(TRPC_SERVICE);
+  const trpcService = injectTrpcClient();
   const useQuery = inject(UseQuery);
 
   return useQuery(['todos'], () => from(trpcService.getTodos.query()));
@@ -101,7 +101,7 @@ function injectToDosQuery() {
 function injectDeleteToDoMutation() {
   const useMutation = inject(UseMutation);
   const queryClientService = inject(QueryClientService);
-  const trpcService = inject(TRPC_SERVICE);
+  const trpcService = injectTrpcClient();
 
   return useMutation(
     (toDoId: string) => {
@@ -125,7 +125,7 @@ function injectDeleteToDoMutation() {
 function injectToggleToDoMutation() {
   const useMutation = inject(UseMutation);
   const queryClientService = inject(QueryClientService);
-  const trpcService = inject(TRPC_SERVICE);
+  const trpcService = injectTrpcClient();
 
   return useMutation(
     (toDoId: string) => {
